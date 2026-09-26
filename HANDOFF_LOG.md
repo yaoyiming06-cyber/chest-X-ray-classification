@@ -18,6 +18,20 @@
 - 训练手下一步：在 Windows 上拉取项目，创建 CUDA 版 PyTorch 环境，并确认 `nvidia-smi` 与 `torch.cuda.is_available()` 正常。
 - 注意事项：`.venv/`、`data/`、`checkpoints/`、模型权重和训练输出不进 Git。
 
+## 项目记忆：图像预处理与训练增强
+
+- 当前 EVA-X-S/CheXpert 训练配置中，默认 `build_timm_transform=False` 时，训练集主要执行 `Resize -> CenterCrop -> ToTensor -> Normalize`，随机增强较少。
+- 后续修改 `classification/utils/datasets.py`、训练 transform 或相关训练参数时，先提醒训练手：确认是否需要启用或补充适合胸片的轻量随机增强。
+- 训练集可以使用轻微随机裁剪、水平翻转等增强；验证集和测试集只使用确定性的 Resize/CenterCrop/Normalize，不使用随机增强。
+- 胸片增强必须保持医学含义，避免默认加入垂直翻转、大角度旋转、过强裁剪、强颜色扰动、Solarization 或强模糊。
+
+## 项目记忆：第一版标签处理策略
+
+- 本项目第一版采用 EVA-X CheXpert 风格的直接标签映射，不使用 mask：Dataset 返回 `image, target`，训练使用 `BCEWithLogitsLoss`。
+- 对 CheXpert 或 `findings_fixed.json` 中已有 EVA 官方 5 类的映射保持一致：`Atelectasis`、`Edema` 的 `-1 -> 1`；`Cardiomegaly`、`Consolidation`、`Pleural Effusion` 的 `-1 -> 0`；`null -> 0`。
+- 10 类任务新增的 `Enlarged Cardiomediastinum`、`Pneumothorax`、`Pneumonia`、`Lung Opacity`、`No Finding` 没有 EVA 官方 5 类基线映射，第一版暂按 `-1 -> 0`、`null -> 0` 处理，并在实验记录中标明这是项目扩展约定。
+- 如果比赛训练集标签已经是完整的 `0/1`，直接使用原标签，不额外套用 CheXpert 的 `-1` 映射；比赛规则也优先于本地 CheXpert baseline。
+
 ## 交接模板
 
 ```text

@@ -1,5 +1,14 @@
 # 交接日志
 
+## 2026-10-08
+
+- 身份：代码手
+- 接收方：训练手
+- 改动摘要：在 EVA-X `classification/competition/` 新增比赛专用 10 类标签及按类别记录的 CheXpert 不确定标签策略、标准清单 Dataset、目录/CSV 检查器、Study 级 logits 聚合、严格 Macro-AUC/Macro-F1 验证和内部概率预测命令；训练入口新增 `--dataset competition`，保持 CheXpert 读取器独立。
+- 验证结果：标签映射及比赛组件单测通过；`train.py` 比赛参数解析、`predict.py --help`、Python 编译均通过。当前本机缺可选 Triton 优化包，不影响入口导入。
+- 训练手下一步：比赛数据预计 2026-10-15 开放；先运行 `python competition/inspect_data.py <data_root>` 并核对标签表、图片与 Study/Subject 关系，再将真实文件转换为 `classification/competition/README.md` 所述内部清单。确认首轮轻量随机增强（小角度仿射及亮度/对比度）符合数据特征后再正式训练。
+- 注意事项：组委会已确认 EVA-X 通用自监督预训练权重可用。U-MultiClass、U-SelfTrained、U-Ignore 尚需接入对应的训练损失/自训练阶段；当前遇到这些类别的 `-1` 会明确报错。真实图片布局、长表缺失类别语义和官方提交模板尚未确认；不要在确认前生成最终 submission.csv。
+
 ## 2026-09-20
 
 - 身份：代码手
